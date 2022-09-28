@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 
-void main() {
+Future main() async {
+  // 環境変数読み込み
+  await dotenv.load(fileName: '.env');
   runApp(const MyApp());
 }
 
@@ -9,58 +13,49 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    return const MaterialApp(
+      home: PixabayPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class PixabayPage extends StatefulWidget {
+  const PixabayPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<PixabayPage> createState() => _PixabayPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _PixabayPageState extends State<PixabayPage> {
+  // 空のリスト
+  List hits = [];
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  Future<void> fetchImages() async {
+    // APIは環境変数設定
+    final url = dotenv.get('VAR_URL');
+    Response response = await Dio().get(url);
+    hits = response.data['hits'];
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchImages();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+      body: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        itemCount: hits.length,
+        itemBuilder: (context, index) {
+          Map<String, dynamic> hit = hits[index];
+          return Image.network(hit['previewURL']);
+        },
       ),
     );
   }
