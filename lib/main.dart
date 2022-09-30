@@ -68,31 +68,39 @@ class _PixabayPageState extends State<PixabayPage> {
         itemCount: hits.length,
         itemBuilder: (context, index) {
           Map<String, dynamic> hit = hits[index];
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              Image.network(
-                hit['previewURL'],
-                fit: BoxFit.cover,
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Container(
-                  color: Colors.white,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.favorite,
-                        size: 14,
-                        color: Colors.red.shade400,
-                      ),
-                      Text('${hit['likes']}'),
-                    ],
+          return InkWell(
+            onTap: () {
+              print(hit['likes']);
+              // 1. URLからダウンロード
+              // 2. ダウンロードしたデータをファイルに保存
+              // 3. Shareパッケージを呼び出して共有
+            },
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.network(
+                  hit['previewURL'],
+                  fit: BoxFit.cover,
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                    color: Colors.white,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.favorite,
+                          size: 14,
+                          color: Colors.red.shade400,
+                        ),
+                        Text('${hit['likes']}'),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
