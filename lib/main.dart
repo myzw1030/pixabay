@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 Future main() async {
   // 環境変数読み込み
@@ -69,11 +73,18 @@ class _PixabayPageState extends State<PixabayPage> {
         itemBuilder: (context, index) {
           Map<String, dynamic> hit = hits[index];
           return InkWell(
-            onTap: () {
-              print(hit['likes']);
+            onTap: () async {
               // 1. URLからダウンロード
-              // 2. ダウンロードしたデータをファイルに保存
+              Response response = await Dio().get(
+                hit['webformatURL'],
+                options: Options(responseType: ResponseType.bytes),
+              );
+              // 2. ダウンロードしたデータをファイルに一時的に保存
+              Directory dir = await getTemporaryDirectory();
+              File file = await File('${dir.path}/image.png')
+                  .writeAsBytes(response.data);
               // 3. Shareパッケージを呼び出して共有
+              Share.shareFiles([file.path]);
             },
             child: Stack(
               fit: StackFit.expand,
